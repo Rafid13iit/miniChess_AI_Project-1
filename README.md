@@ -4,23 +4,17 @@
 A PyQt6-based GUI for the MiniChess game, featuring a clean, modular design with AI and human player modes.
 
 ## Prerequisites
-- Python 3.8+
-- PyQt6
+- pillow
+- tkinter
 
 ## Installation
 1. Clone the repository
-2. Create a virtual environment
-```bash
-python3 -m venv venv
-source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
-```
 
-3. Install dependencies
+2. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
-
-4. Run the game
+3. Run the game
 ```bash
 python main.py
 ```
@@ -33,5 +27,6 @@ python main.py
 
 ## Project Structure
 - `src/`: Source code for game logic
-- `assets/`: Images and styling resources
+- `src/GUI`: Source code for GUI
+- `assets/`: Images of the pieces
 - `main.py`: Application entry point
