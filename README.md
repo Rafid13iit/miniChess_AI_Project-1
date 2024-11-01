@@ -1,7 +1,7 @@
 # MiniChess
 
 ## Overview
-A PyQt6-based GUI for the MiniChess game, featuring a clean, modular design with AI and human player modes.
+A MiniChess game, featuring a clean, modular design with AI and human player modes.
 
 ## Prerequisites
 - pillow
