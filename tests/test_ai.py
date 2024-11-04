@@ -9,9 +9,9 @@ class TestAI(unittest.TestCase):
 
     def test_evaluate_board(self):
         score = self.ai.evaluate_board(self.board)
-        self.assertEqual(score, 0)  # Initial position should be equal
+        self.assertEqual(score, 0)  
 
     def test_get_best_move(self):
         move = self.ai.get_best_move(self.board)
         self.assertIsNotNone(move)
-        self.assertEqual(len(move), 2)  # Should return start and end positions
+        self.assertEqual(len(move), 2)  
