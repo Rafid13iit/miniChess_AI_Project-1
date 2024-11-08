@@ -10,24 +10,33 @@ class MinichessAI:
 
     def evaluate_board(self, board):
         piece_values = {
-            Pawn: 1,
-            Knight: 3,
-            Bishop: 3,
-            Rook: 5,
-            Queen: 9,
-            King: 100
+            Pawn: 100,
+            Knight: 320,
+            Bishop: 330,
+            Rook: 500,
+            Queen: 900,
+            King: 20000
         }
         
         score = 0
-        for y in range(6):  # 6 rows
-            for x in range(5):  # 5 columns
-                piece = board.board[y][x]
+        for row in range(6):  # 6 rows
+            for col in range(5):  # 5 columns
+                piece = board.get_piece((col, row))
                 if piece:
                     value = piece_values.get(type(piece), 0)  # Safely get piece value
                     if piece.color == self.color:
                         score += value
                     else:
                         score -= value
+        
+        # Add bonus points for controlling the center
+        center_positions = [(2, 2), (2, 3), (3, 2), (3, 3)]
+        for pos in center_positions:
+            piece = board.get_piece(pos)
+            if piece and piece.color == self.color:
+                score += 50
+            elif piece and piece.color != self.color:
+                score -= 50
         
         return score
 
@@ -61,12 +70,13 @@ class MinichessAI:
 
     def get_all_moves(self, board, color):
         moves = []
-        for y in range(6):  # 6 rows
-            for x in range(5):  # 5 columns
-                piece = board.board[y][x]
+        for row in range(6):  # 6 rows
+            for col in range(5):  # 5 columns
+                piece = board.get_piece((col, row))
                 if piece and piece.color == color:
                     for move in piece.get_possible_moves(board):
-                        moves.append((piece.position, move))
+                        if not board.would_be_in_check(color, piece.position, move):
+                            moves.append((piece.position, move))
         return moves
 
     def get_best_move(self, board):

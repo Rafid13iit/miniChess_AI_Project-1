@@ -10,7 +10,7 @@ import tkinter as tk
 def main():
     root = tk.Tk()
     root.title("MiniChess")
-    app = MainWindow(root)
+    MainWindow(root)
     root.mainloop()
 
 if __name__ == "__main__":
