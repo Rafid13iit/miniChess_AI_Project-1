@@ -41,7 +41,7 @@ class MinichessAI:
         return score
 
     def minimax(self, board, depth, alpha, beta, maximizing_player):
-        if depth == 0:
+        if depth == 0 or board.is_checkmate(self.color) or board.is_stalemate(self.color):
             return self.evaluate_board(board)
             
         if maximizing_player:
@@ -70,25 +70,22 @@ class MinichessAI:
 
     def get_all_moves(self, board, color):
         moves = []
-        for row in range(6):  # 6 rows
-            for col in range(5):  # 5 columns
-                piece = board.get_piece((col, row))
-                if piece and piece.color == color:
-                    for move in piece.get_possible_moves(board):
-                        if not board.would_be_in_check(color, piece.position, move):
-                            moves.append((piece.position, move))
+        pieces = board.get_all_pieces(color)
+        for piece, pos in pieces:
+            for move in piece.get_possible_moves(board):
+                if not board.would_be_in_check(color, pos, move):
+                    moves.append((pos, move))
         return moves
+
 
     def get_best_move(self, board):
         best_move = None
         best_eval = float('-inf')
-        alpha = float('-inf')
-        beta = float('inf')
         
         for move in self.get_all_moves(board, self.color):
             new_board = deepcopy(board)
             new_board.move_piece(move[0], move[1])
-            eval = self.minimax(new_board, self.depth - 1, alpha, beta, False)
+            eval = self.minimax(new_board, self.depth - 1, best_eval, float('inf'), False)
             if eval > best_eval:
                 best_eval = eval
                 best_move = move

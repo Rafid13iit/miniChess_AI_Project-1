@@ -9,7 +9,7 @@ import tkinter as tk
 
 def main():
     root = tk.Tk()
-    root.title("MiniChess")
+    root.title("MiniChess_AI_Project-01")
     MainWindow(root)
     root.mainloop()
 

@@ -2,22 +2,23 @@ from .piece import Piece, Pawn, Rook, Knight, Bishop, Queen, King
 
 class Board:
     def __init__(self):
-        self.board = [[None for _ in range(5)] for _ in range(6)]
+        self.board = [[None] * 5 for _ in range(6)]
         self.move_history = []
         self.current_turn = 'white'
         self.initialize_board()
 
+
     def initialize_board(self):
         # Initialize pawns
-        for x in range(5):
-            self.board[1][x] = Pawn('white', (x, 1))
-            self.board[4][x] = Pawn('black', (x, 4))
+        pawns = [Pawn('white', (x, 1)) for x in range(5)]
+        self.board[1] = pawns
+        self.board[4] = [Pawn('black', (x, 4)) for x in range(5)]
 
         # Initialize other pieces
         piece_order = [Rook, Knight, Bishop, Queen, King]
-        for x in range(5):
-            self.board[0][x] = piece_order[x]('white', (x, 0))
-            self.board[5][x] = piece_order[x]('black', (x, 5))
+        for x, piece in enumerate(piece_order):
+            self.board[0][x] = piece('white', (x, 0))
+            self.board[5][x] = piece('black', (x, 5))
 
     def get_piece(self, position):
         """Get piece at the specified position."""
@@ -94,23 +95,22 @@ class Board:
         """Undo the last move made."""
         if not self.move_history:
             return False
-            
+
         last_move = self.move_history.pop()
-        piece = last_move['piece']
-        start_pos = last_move['start']
-        end_pos = last_move['end']
-        captured_piece = last_move['captured']
-        
+        piece, start_pos, end_pos, captured_piece = (
+            last_move['piece'],
+            last_move['start'],
+            last_move['end'],
+            last_move['captured'],
+        )
+
         # Restore piece to original position
-        start_x, start_y = start_pos
-        end_x, end_y = end_pos
-        self.board[start_y][start_x] = piece
-        self.board[end_y][end_x] = captured_piece
+        self.board[start_pos[1]][start_pos[0]], self.board[end_pos[1]][end_pos[0]] = piece, captured_piece
         piece.position = start_pos
-        
+
         # Switch turns back
         self.current_turn = 'black' if self.current_turn == 'white' else 'white'
-        
+
         return True
 
     def is_in_check(self, color):
