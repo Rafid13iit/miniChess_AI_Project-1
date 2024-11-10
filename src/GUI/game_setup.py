@@ -1,203 +1,173 @@
 import tkinter as tk
 from tkinter import ttk
-import tkinter.font as tkfont
 from ..game import MinichessGame
 
 class GameSetupDialog:
-    THEME_COLORS = {
-        'bg_dark': '#1a1a1a',
-        'bg_light': '#2d2d2d',
-        'accent': '#7289da',
-        'text_primary': '#ffffff',
-        'text_secondary': '#9e9e9e',
-        'success': '#43b581'
+    # Professional color scheme
+    COLORS = {
+        'primary': '#2c3e50',      # Dark blue-grey
+        'secondary': '#34495e',    # Lighter blue-grey
+        'accent': '#3498db',       # Bright blue
+        'background': '#ecf0f1',   # Light grey
+        'text': '#2c3e50',         # Dark blue-grey
+        'white': '#ffffff',        # White
+        'border': '#bdc3c7'        # Light grey for borders
     }
 
     def __init__(self, parent):
         self.parent = parent
         self.window = tk.Toplevel(parent)
-        self.window.title("MiniChess Pro Setup")
+        self.window.title("MiniChess - Game Setup")
         
         # Configure window
-        self.window.geometry("600x700")
-        self.window.resizable(False, False)
+        window_width = 440
+        window_height = 580
+        screen_width = self.window.winfo_screenwidth()
+        screen_height = self.window.winfo_screenheight()
+        center_x = int(screen_width/2 - window_width/2)
+        center_y = int(screen_height/2 - window_height/2)
+        self.window.geometry(f'{window_width}x{window_height}+{center_x}+{center_y}')
+        
+        # Window properties
         self.window.transient(parent)
         self.window.grab_set()
-        
-        # Set dark theme
-        self.window.configure(bg=self.THEME_COLORS['bg_dark'])
+        self.window.resizable(False, False)
+        self.window.configure(bg=self.COLORS['background'])
         
         # Variables
         self.player1_type = tk.StringVar(value='human')
         self.player2_type = tk.StringVar(value='ai')
-        self.setup_complete = False
         
-        # Create custom fonts
-        self.create_fonts()
-        
-        # Setup styles
+        # Setup
         self.setup_styles()
-        
-        # Create main container
-        self.main_container = ttk.Frame(self.window, style='Dark.TFrame', padding="30")
-        self.main_container.pack(fill=tk.BOTH, expand=True)
-        
         self.create_widgets()
-        self.center_window()
-        
-        # Add hover effects
-        self.setup_hover_effects()
-
-    def create_fonts(self):
-        self.title_font = tkfont.Font(family='Helvetica', size=24, weight='bold')
-        self.header_font = tkfont.Font(family='Helvetica', size=16, weight='bold')
-        self.button_font = tkfont.Font(family='Helvetica', size=12, weight='bold')
 
     def setup_styles(self):
         style = ttk.Style()
         
-        # Configure frame styles
-        style.configure('Dark.TFrame',
-                       background=self.THEME_COLORS['bg_dark'])
+        # Configure main frame style
+        style.configure('Main.TFrame',
+                       background=self.COLORS['background'])
         
-        style.configure('Card.TFrame',
-                       background=self.THEME_COLORS['bg_light'],
-                       relief='flat')
+        # Configure label frame style
+        style.configure('Player.TLabelframe',
+                       background=self.COLORS['background'],
+                       foreground=self.COLORS['text'])
+        style.configure('Player.TLabelframe.Label',
+                       font=('Helvetica', 12, 'bold'),
+                       background=self.COLORS['background'],
+                       foreground=self.COLORS['text'])
         
-        # Configure label styles
-        style.configure('Title.TLabel',
-                       background=self.THEME_COLORS['bg_dark'],
-                       foreground=self.THEME_COLORS['text_primary'],
-                       font=self.title_font)
-        
-        style.configure('Header.TLabel',
-                       background=self.THEME_COLORS['bg_light'],
-                       foreground=self.THEME_COLORS['text_primary'],
-                       font=self.header_font)
-        
-        # Configure button styles
-        style.configure('Action.TButton',
-                       background=self.THEME_COLORS['accent'],
-                       foreground=self.THEME_COLORS['text_primary'],
-                       font=self.button_font,
-                       padding=(30, 15))
-        
-        # Configure radiobutton styles
+        # Configure radiobutton style
         style.configure('Player.TRadiobutton',
-                       background=self.THEME_COLORS['bg_light'],
-                       foreground=self.THEME_COLORS['text_primary'],
-                       font=('Helvetica', 12))
+                       font=('Helvetica', 11),
+                       background=self.COLORS['background'],
+                       foreground=self.COLORS['text'])
+        
+        # Configure button style
+        style.configure('Start.TButton',
+                       font=('Helvetica', 12, 'bold'),
+                       padding=15,
+                       background=self.COLORS['accent'])
+        
+        # Configure separator style
+        style.configure('TSeparator',
+                       background=self.COLORS['border'])
 
     def create_widgets(self):
-        # Title with subtitle
-        title_frame = ttk.Frame(self.main_container, style='Dark.TFrame')
-        title_frame.pack(fill=tk.X, pady=(0, 30))
+        # Main container with padding
+        self.main_frame = ttk.Frame(self.window, style='Main.TFrame', padding="30 25")
+        self.main_frame.pack(fill=tk.BOTH, expand=True)
         
-        ttk.Label(title_frame,
-                 text="MINICHESS",
-                 style='Title.TLabel').pack()
+        # Title and subtitle
+        self.create_header()
         
-        ttk.Label(title_frame,
-                 text="Game Setup",
-                 foreground=self.THEME_COLORS['text_secondary'],
-                 background=self.THEME_COLORS['bg_dark'],
-                 font=('Helvetica', 14)).pack()
-
-        # Player selection cards
-        self.create_player_card("WHITE PLAYER", self.player1_type, "♔")
-        self.create_player_card("BLACK PLAYER", self.player2_type, "♚")
-
-        # Start button with pulsing effect
-        self.start_button = tk.Button(self.main_container,
-                                    text="START GAME",
-                                    font=self.button_font,
-                                    fg=self.THEME_COLORS['text_primary'],
-                                    bg=self.THEME_COLORS['accent'],
-                                    activebackground=self.THEME_COLORS['success'],
-                                    activeforeground=self.THEME_COLORS['text_primary'],
-                                    relief='flat',
-                                    command=self.start_game,
-                                    cursor='hand2',
-                                    pady=15)
-        self.start_button.pack(fill=tk.X, pady=(30, 0))
+        # Separator
+        ttk.Separator(self.main_frame).pack(fill=tk.X, pady=20)
         
-        # Add pulsing animation
-        self.pulse_animation()
-
-    def create_player_card(self, title, variable, chess_piece):
-        card = ttk.Frame(self.main_container, style='Card.TFrame', padding=20)
-        card.pack(fill=tk.X, pady=(0, 20))
+        # Player setup sections
+        self.create_player_section("White Player", self.player1_type)
+        self.create_player_section("Black Player", self.player2_type)
         
-        # Header with chess piece
-        header_frame = ttk.Frame(card, style='Card.TFrame')
-        header_frame.pack(fill=tk.X, pady=(0, 15))
+        # Footer section
+        self.create_footer()
+
+    def create_header(self):
+        # Title
+        title_label = ttk.Label(self.main_frame,
+                               text="MiniChess Setup",
+                               font=('Helvetica', 24, 'bold'),
+                               foreground=self.COLORS['primary'],
+                               background=self.COLORS['background'])
+        title_label.pack(pady=(0, 5))
         
-        ttk.Label(header_frame,
-                 text=chess_piece,
-                 font=('Arial', 36),
-                 foreground=self.THEME_COLORS['accent'],
-                 background=self.THEME_COLORS['bg_light']).pack(side=tk.LEFT)
+        # Subtitle
+        subtitle_label = ttk.Label(self.main_frame,
+                                 text="Configure your game settings",
+                                 font=('Helvetica', 12),
+                                 foreground=self.COLORS['secondary'],
+                                 background=self.COLORS['background'])
+        subtitle_label.pack(pady=(0, 10))
+
+    def create_player_section(self, title, variable):
+        # Player frame
+        frame = ttk.LabelFrame(self.main_frame,
+                             text=title,
+                             style='Player.TLabelframe',
+                             padding="20 15")
+        frame.pack(fill=tk.X, pady=10)
         
-        ttk.Label(header_frame,
-                 text=title,
-                 style='Header.TLabel').pack(side=tk.LEFT, padx=(15, 0))
-
-        # Options container
-        options_frame = ttk.Frame(card, style='Card.TFrame')
-        options_frame.pack(fill=tk.X)
+        # Player type selection
+        ttk.Radiobutton(frame,
+                       text="Human Player",
+                       variable=variable,
+                       value='human',
+                       style='Player.TRadiobutton').pack(anchor=tk.W, pady=5)
         
-        # Player type selection with custom radio buttons
-        for value, text, icon in [('human', 'Human Player', '👤'), ('ai', 'AI Player', '🤖')]:
-            option_frame = ttk.Frame(options_frame, style='Card.TFrame')
-            option_frame.pack(fill=tk.X, pady=5)
-            
-            rb = ttk.Radiobutton(option_frame,
-                                text=f"{icon} {text}",
-                                variable=variable,
-                                value=value,
-                                style='Player.TRadiobutton')
-            rb.pack(side=tk.LEFT, padx=10)
+        ttk.Radiobutton(frame,
+                       text="AI Player",
+                       variable=variable,
+                       value='ai',
+                       style='Player.TRadiobutton').pack(anchor=tk.W, pady=5)
 
-    def setup_hover_effects(self):
-        def on_enter(e):
-            e.widget.configure(bg=self.THEME_COLORS['success'])
-            
-        def on_leave(e):
-            e.widget.configure(bg=self.THEME_COLORS['accent'])
-            
-        self.start_button.bind('<Enter>', on_enter)
-        self.start_button.bind('<Leave>', on_leave)
+    def create_footer(self):
+        # Separator before footer
+        ttk.Separator(self.main_frame).pack(fill=tk.X, pady=20)
+        
+        # Footer frame
+        footer_frame = ttk.Frame(self.main_frame, style='Main.TFrame')
+        footer_frame.pack(fill=tk.X, pady=10)
+        
+        # Start button with custom style
+        self.start_button = ttk.Button(footer_frame,
+                                     text="Start Game",
+                                     command=self.start_game,
+                                     style='Start.TButton')
+        self.start_button.pack(pady=10)
+        
+        # Keyboard shortcut hint
+        shortcut_label = ttk.Label(footer_frame,
+                                 text="Press Enter to start or Esc to cancel",
+                                 font=('Helvetica', 9),
+                                 foreground=self.COLORS['secondary'],
+                                 background=self.COLORS['background'])
+        shortcut_label.pack(pady=(5, 0))
+        
+        # Bind keyboard shortcuts
+        self.window.bind('<Return>', lambda e: self.start_game())
+        self.window.bind('<Escape>', lambda e: self.window.destroy())
+        
+        # Bind hover effects
+        self.start_button.bind('<Enter>', self.on_enter)
+        self.start_button.bind('<Leave>', self.on_leave)
 
-    def pulse_animation(self):
-        if not self.setup_complete:
-            current_color = self.start_button.cget('background')
-            next_color = self.THEME_COLORS['success'] if current_color == self.THEME_COLORS['accent'] else self.THEME_COLORS['accent']
-            self.start_button.configure(bg=next_color)
-            self.window.after(1500, self.pulse_animation)
+    def on_enter(self, event):
+        self.start_button.state(['active'])
 
-    def center_window(self):
-        self.window.update_idletasks()
-        width = self.window.winfo_width()
-        height = self.window.winfo_height()
-        x = (self.window.winfo_screenwidth() // 2) - (width // 2)
-        y = (self.window.winfo_screenheight() // 2) - (height // 2)
-        self.window.geometry(f'{width}x{height}+{x}+{y}')
+    def on_leave(self, event):
+        self.start_button.state(['!active'])
 
     def start_game(self):
-        self.setup_complete = True
         game = MinichessGame(self.player1_type.get(), self.player2_type.get())
         self.window.destroy()
         return game
-
-# Helper function to create translucent overlay effect
-def create_hover_effect(widget, color):
-    overlay = tk.Frame(widget, bg=color)
-    
-    def on_enter(e):
-        overlay.place(relwidth=1, relheight=1)
-        
-    def on_leave(e):
-        overlay.place_forget()
-        
-    widget.bind('<Enter>', on_enter)
-    widget.bind('<Leave>', on_leave)
