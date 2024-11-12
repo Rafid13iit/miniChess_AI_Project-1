@@ -1,6 +1,6 @@
 # board_view.py
-
 import tkinter as tk
+import time
 import pygame.mixer
 from .piece_view import PieceView
 from .board_themes import ChessBoardThemes
@@ -30,6 +30,34 @@ class BoardView:
             relief='ridge'
         )
         self.frame.pack(side=tk.LEFT, padx=(0, 20))
+
+        # Create control frame for undo/redo buttons
+        self.control_frame = tk.Frame(self.container)
+        self.control_frame.pack(side=tk.LEFT, fill=tk.Y, pady=(0, 20))
+
+        # Add undo/redo buttons
+        self.undo_button = tk.Button(
+            self.control_frame,
+            text="↶ Undo",
+            command=self.undo_move,
+            font=('Helvetica', 12),
+            width=10,
+            pady=5
+        )
+        self.undo_button.pack(pady=(0, 5))
+
+        self.redo_button = tk.Button(
+            self.control_frame,
+            text="↷ Redo",
+            command=self.redo_move,
+            font=('Helvetica', 12),
+            width=10,
+            pady=5
+        )
+        self.redo_button.pack()
+
+        # Store moves that were undone for redo functionality
+        self.undone_moves = []
 
         # Create right frame for theme selection
         self.theme_frame = tk.Frame(self.container)
@@ -127,19 +155,81 @@ class BoardView:
         self.canvas.bind('<Motion>', self.on_mouse_move)
         self.hover_square = None
 
+        # Initialize undo/redo button states
+        self.update_undo_redo_buttons()
+
+    def undo_move(self):
+        """Undo the last move."""
+        if self.board.move_history:
+            # Save the last move for potential redo
+            last_move = self.board.move_history[-1]
+            self.undone_moves.append(last_move)
+            
+            # Perform the undo
+            self.board.undo_last_move()
+            
+            # Update the display
+            if self.board.move_history:
+                # If there are still moves in history, show the last one
+                last_remaining = self.board.move_history[-1]
+                self.last_move = (last_remaining['start'], last_remaining['end'])
+            else:
+                # If no moves left, clear last move highlight
+                self.last_move = None
+            
+            self.update()
+            self.update_undo_redo_buttons()
+            
+            # Play move sound
+            self.play_sound(is_capture=False)
+
+    def redo_move(self):
+        """Redo the previously undone move."""
+        if self.undone_moves:
+            move = self.undone_moves.pop()
+            
+            # Execute the move
+            start_pos = move['start']
+            end_pos = move['end']
+            
+            # Move the piece
+            self.board.move_piece(start_pos, end_pos)
+            
+            # Update the display
+            self.last_move = (start_pos, end_pos)
+            self.update()
+            self.update_undo_redo_buttons()
+            
+            # Play appropriate sound
+            self.play_sound(is_capture=bool(move['captured']))
+
+    def update_undo_redo_buttons(self):
+        """Update the enabled/disabled state of undo/redo buttons."""
+        self.undo_button.configure(state=tk.NORMAL if self.board.move_history else tk.DISABLED)
+        self.redo_button.configure(state=tk.NORMAL if self.undone_moves else tk.DISABLED)
+
     def on_theme_change(self):
         """Handle theme selection change."""
         new_theme = self.current_theme.get()
         self.colors = self.theme_manager.get_theme(new_theme)
         self.redraw_board()
 
-    
+
     def play_sound(self, is_capture=False):
-        """Play move or capture sound."""
+        """Play sound effect for moves and captures."""
         if is_capture:
-            self.capture_sound.play()
+            self.capture_sound.play()  # Play capture sound if a piece is captured
         else:
-            self.move_sound.play()
+            self.move_sound.play()     # Play move sound for regular moves
+        
+        # Delay for the duration of the sound, then stop it
+        time.sleep(self.move_sound.get_length())
+        self.stop_sound()
+
+    def stop_sound(self):
+        """Stop any sound that's playing."""
+        pygame.mixer.stop()
+
 
     def redraw_board(self):
         """Redraw the entire board with current theme."""
@@ -294,11 +384,77 @@ class BoardView:
             for move_col, move_row in valid_moves:
                 self.highlight_square(move_col, move_row, self.colors['highlight_moves'])
 
+
     def on_canvas_click(self, event):
-        """Handle mouse clicks with improved coordinate calculation."""
+        """Handle mouse clicks with piece movement, sound effects, and callback functionality."""
         col, row = self.get_square_from_coords(event.x, event.y)
-        if 0 <= col < 5 and 0 <= row < 6:
-            self.cell_callback(col, row)
+        if not (0 <= col < 5 and 0 <= row < 6):
+            return
+
+        # If no piece is selected
+        if self.selected_piece is None:
+            piece = self.board.get_piece((col, row))
+            if piece and piece.color == self.board.current_turn:
+                self.selected_piece = (col, row)
+                self.highlight_selected(col, row)
+                # Trigger callback when selecting a piece
+                self.cell_callback(col, row)
+        # If a piece is already selected
+        else:
+            from_pos = self.selected_piece
+            to_pos = (col, row)
+
+            # Get the piece and its valid moves
+            piece = self.board.get_piece(from_pos)
+            valid_moves = []
+            if piece:
+                moves = piece.get_possible_moves(self.board)
+                valid_moves = [
+                    move for move in moves
+                    if not self.board.would_be_in_check(piece.color, from_pos, move)
+                ]
+
+            # If the clicked square is a valid move
+            if to_pos in valid_moves:
+                # Trigger callback before executing the move
+                self.cell_callback(col, row)
+
+                # Clear the redo stack when a new move is made
+                self.undone_moves.clear()
+
+                # Execute the move
+                captured_piece = self.board.get_piece(to_pos)
+                self.board.move_piece(from_pos, to_pos)
+
+                # Play appropriate sound
+                # self.play_sound(is_capture=bool(captured_piece))
+                self.play_sound(is_capture=False)
+
+                # Update display and game state
+                self.last_move = (from_pos, to_pos)
+                self.selected_piece = None
+                self.update()
+
+                # Update undo/redo button states
+                self.update_undo_redo_buttons()
+            else:
+                # If clicked on another own piece, select it instead
+                new_piece = self.board.get_piece(to_pos)
+                if new_piece and new_piece.color == self.board.current_turn:
+                    self.selected_piece = to_pos
+                    self.highlight_selected(col, row)
+                    # Trigger callback when selecting a new piece
+                    self.cell_callback(col, row)
+                else:
+                    self.selected_piece = None
+                    self.canvas.delete('highlight')
+                    # Trigger callback for deselection
+                    self.cell_callback(col, row)
+
+        # If the last move resulted in a check, we might want to highlight it
+        if self.board.is_in_check(self.board.current_turn):
+            # You could add visual feedback for check here
+            pass
 
     def highlight_last_move(self, from_pos, to_pos):
         """Highlight the last move made on the board."""

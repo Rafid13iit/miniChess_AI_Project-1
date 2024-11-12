@@ -13,7 +13,7 @@ class MainWindow:
         
         # Configure root window
         self.root.configure(bg='#f0f0f0')
-        self.center_window(800, 600)
+        self.center_window(1000, 700)
         
         # Configure styles
         self.setup_styles()

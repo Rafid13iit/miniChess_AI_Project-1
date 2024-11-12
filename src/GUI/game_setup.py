@@ -1,23 +1,26 @@
 import tkinter as tk
 from tkinter import ttk
-from ..game import MinichessGame
+import threading
+import time
+
+from src.game import MinichessGame
 
 class GameSetupDialog:
-    # Professional color scheme
     COLORS = {
-        'primary': '#2c3e50',      # Dark blue-grey
-        'secondary': '#34495e',    # Lighter blue-grey
-        'accent': '#3498db',       # Bright blue
-        'background': '#ecf0f1',   # Light grey
-        'text': '#2c3e50',         # Dark blue-grey
-        'white': '#ffffff',        # White
-        'border': '#bdc3c7'        # Light grey for borders
+        'primary': '#2c3e50',
+        'secondary': '#34495e',
+        'accent': '#3498db',
+        'background': '#ecf0f1',
+        'text': '#2c3e50',
+        'white': '#ffffff',
+        'border': '#bdc3c7'
     }
 
     def __init__(self, parent):
         self.parent = parent
         self.window = tk.Toplevel(parent)
         self.window.title("MiniChess - Game Setup")
+        self.game = None
         
         # Configure window
         window_width = 440
