@@ -168,7 +168,18 @@ class ChessBoardThemes:
         }
     
     def get_theme(self, theme_id):
-        """Get color scheme for a specific theme."""
+        """
+        Retrieve the color scheme for a specific theme.
+
+        Given a theme ID (a string identifier), this function returns the
+        corresponding color scheme (a dictionary of color names to hex color
+        codes) from the color_themes dictionary.
+
+        :param theme_id: The ID of the theme to retrieve the color scheme for.
+        :type theme_id: str
+        :return: A dictionary of color names to hex color codes for the theme.
+        :rtype: Dict[str, str]
+        """
         return self.color_themes.get(theme_id)
     
     def get_theme_description(self, theme_id):
