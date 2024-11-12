@@ -1,6 +1,6 @@
 class Piece:
     def __init__(self, color, position):
-        self.color = color  # 'white' or 'black'
+        self.color = color  
         self.position = position
         self.has_moved = False
 
@@ -13,7 +13,7 @@ class Piece:
 
     def is_valid_move(self, board, target_position):
         x, y = target_position
-        if not (0 <= x < 5 and 0 <= y < 6):  # Updated board boundaries
+        if not (0 <= x < 5 and 0 <= y < 6):  
             return False
         possible_moves = self.get_possible_moves(board)
         return target_position in possible_moves

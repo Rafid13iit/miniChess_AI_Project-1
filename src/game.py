@@ -44,7 +44,7 @@ class MinichessGame:
         print(f"\n{self.current_player.capitalize()}'s turn")
         
         if self.players[self.current_player]:  # AI player
-            # Add a small delay to make AI moves visible
+       
             time.sleep(1)
             start_pos, end_pos = self.players[self.current_player].get_best_move(self.board)
             if self.board.move_piece(start_pos, end_pos):
