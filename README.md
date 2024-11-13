@@ -34,6 +34,6 @@ python main.py
 ## Screenshots
 Here are some screenshots of the MiniChess game:
 
-<img src="https://github.com/Rafid13iit/miniChess_AI_Project-1/tree/blob/Rafid/assets/images/a.png?raw=true" width="750" height="400" align="center">
-<img src="https://github.com/Rafid13iit/miniChess_AI_Project-1/tree/blob/Rafid/assets/images/b.png?raw=true" width="750" height="400" align="center">
-<img src="https://github.com/Rafid13iit/miniChess_AI_Project-1/tree/blob/Rafid/assets/images/c.png?raw=true" width="750" height="400" align="center">
+<img src="https://github.com/Rafid13iit/miniChess_AI_Project-1/blob/Rafid/assets/images/a.png?raw=true" width="750" height="400" align="center">
+<img src="https://github.com/Rafid13iit/miniChess_AI_Project-1/blob/Rafid/assets/images/b.png?raw=true" width="750" height="400" align="center">
+<img src="https://github.com/Rafid13iit/miniChess_AI_Project-1/blob/Rafid/assets/images/c.png?raw=true" width="750" height="400" align="center">
