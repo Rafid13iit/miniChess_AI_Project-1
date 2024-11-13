@@ -30,3 +30,10 @@ python main.py
 - `src/GUI`: Source code for GUI
 - `assets/`: Images of the pieces
 - `main.py`: Application entry point
+
+## Screenshots
+Here are some screenshots of the MiniChess game:
+
+<img src="https://github.com/Rafid13iit/Doctors_Care/blob/master/public/assets/images/Cover.png?raw=true" width="750" height="400" align="center">
+<img src="https://github.com/Rafid13iit/Doctors_Care/blob/master/public/assets/images/Cover.png?raw=true" width="750" height="400" align="center">
+<img src="https://github.com/Rafid13iit/Doctors_Care/blob/master/public/assets/images/Cover.png?raw=true" width="750" height="400" align="center">
